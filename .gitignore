@@ -1,0 +1,13 @@
+# datasets and caches (downloaded by the notebook)
+npd/
+npd.zip
+PlantDoc-Dataset/
+plantdoc_clean/
+tfcache/
+results_quick/
+results.zip
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/

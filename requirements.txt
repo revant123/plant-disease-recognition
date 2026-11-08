@@ -1,0 +1,9 @@
+# Training runs in Google Colab (TensorFlow is pre-installed there).
+# These are what you need to run the Streamlit app locally.
+tensorflow>=2.16
+numpy
+pandas
+pillow
+matplotlib
+scikit-learn
+streamlit>=1.35

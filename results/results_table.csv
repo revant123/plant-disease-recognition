@@ -1,0 +1,5 @@
+experiment,valid acc (all),valid acc: leaked leaves,valid acc: unseen leaves,PlantDoc field acc,test acc,test macro-F1,params
+E1 Base-paper net; usual split,97.97,98.60,96.99,13.98,,,
+E2 Base-paper net; leaf split,,,,13.14,96.11,96.12,430058
+E3 Proposed (lab only),,,,26.69,99.54,99.52,3032870
+E4 Proposed + field mixing,,,,57.20,99.34,99.34,3032870
