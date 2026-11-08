@@ -147,6 +147,7 @@ In the Grad-CAM figures, green titles are correct predictions and red titles are
 ```
 notebooks/Plant_Disease_Gap_Filling.ipynb   full pipeline: data, leakage audit, split, models, E1–E4, results, Grad-CAM
 app.py                                      Streamlit app (top-3 prediction + Grad-CAM heat-map)
+app_model/                                  trained E4 model (model.keras) + class names (meta.json)
 scripts/leakage_audit.py                    standalone leakage audit for the dataset folders
 results/                                    result table and figures from our run
 requirements.txt                            packages for running the app locally
@@ -164,11 +165,14 @@ The notebook downloads both datasets itself, with no Kaggle login needed. Models
 
 ### 2. Run the web app
 
+The trained model (E4: MobileNetV3-Large + field mixing) is included in `app_model/`.
+
 ```bash
 pip install -r requirements.txt
-# put the app_model/ folder (model.keras + meta.json) from Google Drive next to app.py
 streamlit run app.py
 ```
+
+Upload a leaf photo to get the top-3 predicted diseases with confidence and a Grad-CAM heat-map.
 
 ### 3. Leakage audit only
 
