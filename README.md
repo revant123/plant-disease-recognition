@@ -149,6 +149,7 @@ notebooks/Plant_Disease_Gap_Filling.ipynb   full pipeline: data, leakage audit, 
 app.py                                      Streamlit app (top-3 prediction + Grad-CAM heat-map)
 app_model/                                  trained E4 model (model.keras) + class names (meta.json)
 demo_images/                                lab + field photos for a live demo (all predicted correctly)
+test_images/                                195 unseen photos in 38 disease folders + answer_key.csv
 scripts/leakage_audit.py                    standalone leakage audit for the dataset folders
 results/                                    result table and figures from our run
 requirements.txt                            packages for running the app locally
