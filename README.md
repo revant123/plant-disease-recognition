@@ -148,6 +148,7 @@ In the Grad-CAM figures, green titles are correct predictions and red titles are
 notebooks/Plant_Disease_Gap_Filling.ipynb   full pipeline: data, leakage audit, split, models, E1–E4, results, Grad-CAM
 app.py                                      Streamlit app (top-3 prediction + Grad-CAM heat-map)
 app_model/                                  trained E4 model (model.keras) + class names (meta.json)
+demo_images/                                lab + field photos for a live demo (all predicted correctly)
 scripts/leakage_audit.py                    standalone leakage audit for the dataset folders
 results/                                    result table and figures from our run
 requirements.txt                            packages for running the app locally
@@ -172,7 +173,7 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Upload a leaf photo to get the top-3 predicted diseases with confidence and a Grad-CAM heat-map.
+Upload a leaf photo to get the top-3 predicted diseases with confidence and a Grad-CAM heat-map. Test photos are in [`demo_images/`](demo_images/), with the expected prediction for each.
 
 ### 3. Leakage audit only
 
