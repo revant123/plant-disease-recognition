@@ -1,0 +1,11 @@
+.git
+.venv
+__pycache__
+*.pyc
+web
+notebooks
+results
+scripts
+test_images
+demo_images
+*.md

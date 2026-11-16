@@ -1,0 +1,10 @@
+# Inference API (server.py) — used by the Dockerfile for the Railway deployment.
+# CPU-only TensorFlow keeps the image smaller; Keras is pinned to the version the model was saved with.
+tensorflow-cpu==2.20.0
+keras==3.13.2
+numpy
+pillow
+matplotlib
+fastapi==0.115.*
+uvicorn[standard]==0.32.*
+python-multipart

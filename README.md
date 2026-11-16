@@ -153,6 +153,9 @@ test_images/                                195 unseen photos in 38 disease fold
 scripts/leakage_audit.py                    standalone leakage audit for the dataset folders
 results/                                    result table and figures from our run
 requirements.txt                            packages for running the app locally
+server.py                                   FastAPI inference API (deployed on Railway)
+requirements-api.txt, Dockerfile, railway.json   Railway build + deploy config for the API
+web/                                        static web front end (deployed on Vercel)
 ```
 
 ## How to run
@@ -181,6 +184,33 @@ Upload a leaf photo to get the top-3 predicted diseases with confidence and a Gr
 ```bash
 python scripts/leakage_audit.py "path/to/New Plant Diseases Dataset(Augmented)"
 ```
+
+### 4. Deploy online (Railway API + Vercel front end)
+
+```mermaid
+flowchart LR
+    U["Browser"] --> V["Vercel<br/>web/ (static site)"]
+    V -- "POST /predict (image)" --> R["Railway<br/>server.py + model.keras<br/>FastAPI · TensorFlow CPU"]
+    R -- "top-3 + Grad-CAM PNG" --> V
+```
+
+TensorFlow is far larger than Vercel's serverless function limit and Streamlit needs a long-running server, so the
+model runs on **Railway** (a Docker container) and **Vercel** serves only the static web page that calls it.
+
+**Railway (API)**
+1. [railway.com](https://railway.com) → **New Project → Deploy from GitHub repo** → pick this repo.
+   Railway reads `railway.json` and builds the `Dockerfile` (first build ≈ 5 min).
+2. Service → **Settings → Networking → Generate Domain**. Copy the URL, e.g. `https://xxx.up.railway.app`.
+3. Check `https://xxx.up.railway.app/health` returns `{"status":"ok"}` (interactive docs at `/docs`).
+4. The service uses about **400 MB of RAM** (tested under a 512 MB / 1 vCPU cap), so it fits Railway's smallest plan.
+
+**Vercel (web page)**
+1. [vercel.com](https://vercel.com) → **Add New → Project** → import this repo.
+2. Set **Root Directory** to `web`. Framework preset: **Other** (`web/vercel.json` sets the build).
+3. Add an environment variable **`API_URL`** = your Railway URL (no trailing slash) → **Deploy**.
+4. Optional: on Railway, set `ALLOWED_ORIGINS` to your Vercel URL (default `*` allows any site).
+
+Run both locally: `uvicorn server:app --port 8000`, then `cd web && API_URL=http://localhost:8000 node build.mjs && python -m http.server -d dist 5173`.
 
 ---
 

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plant Disease Recognition</title>
+  <meta name="description" content="Upload a leaf photo to identify 38 plant diseases, with a Grad-CAM heat-map showing what the model looked at.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+  <link rel="stylesheet" href="style.css">
+  <script src="config.js"></script>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-inner">
+      <div class="brand"><span class="leaf">🌿</span> Plant Disease Recognition</div>
+      <span id="status" class="status status-wait" title="Inference API status">Connecting…</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Diagnose a leaf from a photo</h1>
+      <p>MobileNetV3-Large fine-tuned on PlantVillage + PlantDoc field photos. 38 classes across 14 crops,
+        with a Grad-CAM heat-map that shows which part of the leaf drove the prediction.</p>
+    </section>
+
+    <section class="card upload">
+      <label id="drop" class="drop" for="file">
+        <input id="file" type="file" accept="image/jpeg,image/png" hidden>
+        <div class="drop-icon">⬆</div>
+        <div><strong>Drop a leaf photo here</strong> or click to choose</div>
+        <div class="muted">JPG or PNG, up to 10 MB</div>
+      </label>
+      <div class="samples">
+        <div class="muted small">…or try a sample</div>
+        <div id="samples" class="sample-row"></div>
+      </div>
+    </section>
+
+    <section id="result" class="card result" hidden>
+      <div class="images">
+        <figure><img id="orig" alt="Uploaded leaf"><figcaption>Your photo</figcaption></figure>
+        <figure><div class="cam-box"><img id="cam" alt="Grad-CAM heat-map"><div id="spinner" class="spinner" hidden></div></div>
+          <figcaption>Grad-CAM — red = most important</figcaption></figure>
+      </div>
+      <div id="verdict" class="verdict"></div>
+      <div id="top3" class="top3"></div>
+      <p id="error" class="error" hidden></p>
+    </section>
+
+    <section class="card about">
+      <h2>About the project</h2>
+      <p><strong>Base paper:</strong> S. M. Hassan and A. K. Maji, “Plant Disease Identification Using a Novel Convolutional
+        Neural Network,” <em>IEEE Access</em>, vol. 10, pp. 5390–5401, 2022.</p>
+      <ol>
+        <li><strong>Leakage-free evaluation.</strong> Data is split by leaf, not by image, so rotated or flipped copies of one leaf never appear in both train and test.</li>
+        <li><strong>Lab → field generalisation.</strong> Tested on real field photos (PlantDoc), with field images mixed into training.</li>
+        <li><strong>Explainability.</strong> A Grad-CAM heat-map shows which part of the leaf drove the prediction.</li>
+      </ol>
+      <p class="muted">This tool supports, but does not replace, an agricultural expert.</p>
+    </section>
+  </main>
+
+  <footer class="wrap muted small">
+    Revant Shukla · <a href="https://github.com/revant123/plant-disease-recognition">Source on GitHub</a>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
