@@ -4,12 +4,12 @@
 const API = (new URLSearchParams(location.search).get("api") || window.API_URL || "").replace(/\/+$/, "");
 
 const SAMPLES = [
-  ["01_potato_late_blight.jpg", "Potato — late blight (lab)"],
-  ["02_tomato_healthy.jpg", "Tomato — healthy (lab)"],
-  ["05_grape_black_rot.jpg", "Grape — black rot (lab)"],
-  ["01_apple_apple_scab.jpg", "Apple — scab (field)"],
-  ["05_corn_common_rust.jpg", "Corn — common rust (field)"],
-  ["06_squash_powdery_mildew.jpg", "Squash — powdery mildew (field)"],
+  ["01_potato_late_blight.jpg", "Potato, lab photo"],
+  ["02_tomato_healthy.jpg", "Tomato, lab photo"],
+  ["05_grape_black_rot.jpg", "Grape, lab photo"],
+  ["01_apple_apple_scab.jpg", "Apple, field photo"],
+  ["05_corn_common_rust.jpg", "Corn, field photo"],
+  ["06_squash_powdery_mildew.jpg", "Squash, field photo"],
 ];
 
 const $ = (id) => document.getElementById(id);
@@ -20,21 +20,22 @@ function setStatus(kind, text) {
   statusEl.textContent = text;
 }
 
-// Poll /health so the user can see when the backend is awake (Railway may take a moment after a deploy).
+// Poll /health so people can see when the model is awake (Railway can take a moment after a deploy).
 async function checkHealth(tries = 0) {
-  if (!API) return setStatus("bad", "API URL not set");
+  if (!API) return setStatus("bad", "Model address not set");
   try {
     const r = await fetch(`${API}/health`, { cache: "no-store" });
     const d = await r.json();
     if (d.status === "ok") return setStatus("ok", "Model ready");
-    setStatus("wait", "Model loading…");
+    setStatus("wait", "Model loading");
   } catch {
-    setStatus(tries > 3 ? "bad" : "wait", tries > 3 ? "API unreachable" : "Waking API…");
+    setStatus(tries > 3 ? "bad" : "wait", tries > 3 ? "Model offline" : "Waking the model");
   }
   if (tries < 30) setTimeout(() => checkHealth(tries + 1), 3000);
 }
 
-function pct(x) { return `${(x * 100).toFixed(1)}%`; }
+const pct = (x) => `${(x * 100).toFixed(1)}%`;
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 async function predict(blob, name = "leaf.jpg") {
   const result = $("result");
@@ -42,35 +43,38 @@ async function predict(blob, name = "leaf.jpg") {
   $("orig").src = URL.createObjectURL(blob);
   $("cam").removeAttribute("src");
   $("spinner").hidden = false;
-  $("verdict").textContent = "";
-  $("verdict").className = "verdict";
-  $("top3").innerHTML = "";
+  $("label").hidden = true;
   $("error").hidden = true;
   result.scrollIntoView({ behavior: "smooth", block: "start" });
 
   try {
-    if (!API) throw new Error("The API URL is not configured. Set API_URL in Vercel and redeploy.");
+    if (!API) throw new Error("The site doesn't know where the model is. Set API_URL in Vercel and redeploy.");
     const form = new FormData();
     form.append("file", blob, name);
     const r = await fetch(`${API}/predict`, { method: "POST", body: form });
     const d = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(d.detail || `Server error (${r.status})`);
+    if (!r.ok) throw new Error(d.detail || `The model returned an error (${r.status}). Try another photo.`);
 
     $("cam").src = d.gradcam_png;
     const p = d.prediction;
-    const v = $("verdict");
-    v.className = `verdict ${p.healthy ? "healthy" : "sick"}`;
-    v.innerHTML = `<strong>${p.crop}</strong> — ${p.condition} <span class="conf">· ${pct(p.confidence)} confidence</span>`;
+    $("crop").textContent = p.crop;
+    $("condition").textContent = p.healthy ? "Healthy" : p.condition;
+    $("confidence").textContent = pct(p.confidence);
+    const stamp = $("stamp");
+    stamp.className = `stamp ${p.healthy ? "healthy" : "sick"}`;
+    stamp.textContent = p.healthy ? "Healthy" : "Disease found";
 
-    $("top3").innerHTML = "<div class='muted small'>Top-3 predictions</div>" + d.top3.map((t) => `
+    $("top3").innerHTML = "<p class='top3-title'>Top three possibilities</p>" + d.top3.map((t) => `
       <div class="bar-row">
-        <div class="bar-label"><span>${t.label}</span><span>${pct(t.confidence)}</span></div>
+        <div class="bar-label"><span>${esc(t.label)}</span><span>${pct(t.confidence)}</span></div>
         <div class="bar"><span style="width:${(t.confidence * 100).toFixed(1)}%"></span></div>
       </div>`).join("");
+    $("label").hidden = false;
     setStatus("ok", "Model ready");
   } catch (e) {
-    const msg = e instanceof TypeError ? "Could not reach the API. It may be waking up — try again in a few seconds." : e.message;
-    $("error").textContent = msg;
+    $("error").textContent = e instanceof TypeError
+      ? "Couldn't reach the model. It may be waking up, so try again in a few seconds."
+      : e.message;
     $("error").hidden = false;
   } finally {
     $("spinner").hidden = true;
@@ -91,14 +95,13 @@ drop.addEventListener("drop", (e) => {
   if (f && f.type.startsWith("image/")) predict(f, f.name);
 });
 
-// Sample images
+// Sample leaves
 const row = $("samples");
 SAMPLES.forEach(([file, label]) => {
   const b = document.createElement("button");
   b.type = "button";
-  b.title = label;
-  b.setAttribute("aria-label", `Try sample: ${label}`);
-  b.innerHTML = `<img src="samples/${file}" alt="">`;
+  b.setAttribute("aria-label", `Try the sample: ${label}`);
+  b.innerHTML = `<img src="samples/${file}" alt=""><span>${label}</span>`;
   b.onclick = async () => {
     const blob = await (await fetch(`samples/${file}`)).blob();
     predict(blob, file);
