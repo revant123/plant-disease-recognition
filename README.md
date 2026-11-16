@@ -2,7 +2,7 @@
 
 Build a plant-disease classifier that is **evaluated honestly**, **works on field photos** and **explains its decisions**.
 
-**Authors:** Revant Shukla (RA2311033010171) · Krish Shewarmani (RA2311033010148)
+**Authors:** Revant Shukla (RA2311033010171)
 
 ---
 
